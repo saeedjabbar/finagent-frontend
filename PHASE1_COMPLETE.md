@@ -123,11 +123,11 @@ supabase link --project-ref bjhvfedrnegsuhtjengv
 4. **Set environment secrets**:
 ```bash
 supabase secrets set OPENAI_API_KEY=""
-supabase secrets set OPENAI_BASE_URL="https://finagent-project-resource.cognitiveservices.azure.com/openai/v1/"
-supabase secrets set OPENAI_MODEL_NAME="gpt-5"
+supabase secrets set OPENAI_BASE_URL=""
+supabase secrets set OPENAI_MODEL_NAME=""
 supabase secrets set ALPACA_API_KEY=""
 supabase secrets set ALPACA_SECRET_KEY=""
-supabase secrets set ALPACA_BASE_URL="https://paper-api.alpaca.markets"
+supabase secrets set ALPACA_BASE_URL=""
 ```
 
 5. **Deploy functions**:

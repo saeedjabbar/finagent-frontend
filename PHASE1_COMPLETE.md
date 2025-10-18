@@ -85,19 +85,19 @@ Phase 1 of the FinAgent project has been successfully completed! The foundation 
 
 ## 📊 Project Status
 
-| Component | Status | Progress |
-|-----------|--------|----------|
-| Documentation | ✅ Complete | 100% |
-| Database Schema | ✅ Complete | 100% |
-| Sample Data | ✅ Loaded | 100% |
-| Environment Config | ✅ Complete | 100% |
-| GPT-5 Integration | ✅ Complete | 100% |
-| Agent Edge Function | ✅ Complete | 100% |
-| Alpaca Proxy | ✅ Complete | 100% |
-| Frontend Integration | 🔄 Next Phase | 0% |
-| LangGraph Agents | 🔄 Next Phase | 0% |
-| RAG Implementation | 🔄 Next Phase | 0% |
-| Testing | 🔄 Next Phase | 0% |
+| Component            | Status       | Progress |
+| -------------------- | ------------ | -------- |
+| Documentation        | ✅ Complete   | 100%     |
+| Database Schema      | ✅ Complete   | 100%     |
+| Sample Data          | ✅ Loaded     | 100%     |
+| Environment Config   | ✅ Complete   | 100%     |
+| GPT-5 Integration    | ✅ Complete   | 100%     |
+| Agent Edge Function  | ✅ Complete   | 100%     |
+| Alpaca Proxy         | ✅ Complete   | 100%     |
+| Frontend Integration | 🔄 Next Phase | 0%       |
+| LangGraph Agents     | 🔄 Next Phase | 0%       |
+| RAG Implementation   | 🔄 Next Phase | 0%       |
+| Testing              | 🔄 Next Phase | 0%       |
 
 ---
 
@@ -122,11 +122,11 @@ supabase link --project-ref bjhvfedrnegsuhtjengv
 
 4. **Set environment secrets**:
 ```bash
-supabase secrets set OPENAI_API_KEY="G8QvEiK6IKaVX1Wd4f1jiQwzKmVFHSF9a5LaJk6a4CdFIb9sBOEDJQQJ99BJACHYHv6XJ3w3AAAAACOGZOGF"
+supabase secrets set OPENAI_API_KEY=""
 supabase secrets set OPENAI_BASE_URL="https://finagent-project-resource.cognitiveservices.azure.com/openai/v1/"
 supabase secrets set OPENAI_MODEL_NAME="gpt-5"
-supabase secrets set ALPACA_API_KEY="PK8O6U04S0KVOCZ369L6"
-supabase secrets set ALPACA_SECRET_KEY="Cg2o2mhrqByPUGGDfYXMEoPz9UirKT6zwqrjQUha"
+supabase secrets set ALPACA_API_KEY=""
+supabase secrets set ALPACA_SECRET_KEY=""
 supabase secrets set ALPACA_BASE_URL="https://paper-api.alpaca.markets"
 ```
 

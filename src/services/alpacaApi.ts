@@ -1,4 +1,4 @@
-import type { Stock, Portfolio, Position, ChartData, Trade } from '../types';
+import type { Stock, Portfolio, Position, ChartData, Trade, TradeActivity } from '../types';
 import { supabase } from './supabaseClient';
 
 const ACCOUNT_CODE = 'C40421';
@@ -21,6 +21,9 @@ interface TradeRow {
   StockShareQty: number | string | null;
   Date: string | null;
   TradeTimeStamp: string | null;
+  GrossAmount?: number | string | null;
+  Commission?: number | string | null;
+  NetAmount?: number | string | null;
 }
 
 interface PositionComputation {
@@ -46,6 +49,14 @@ const toNumber = (value: unknown): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const toNullableNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 const formatDateForQuery = (date: Date): string => date.toISOString().slice(0, 10);
 
 const buildTimestamp = (date: string | null, time: string | null): Date => {
@@ -61,7 +72,7 @@ const buildTimestamp = (date: string | null, time: string | null): Date => {
 class PortfolioDataService {
   async getPortfolio(): Promise<Portfolio> {
     const { data, error } = await supabase
-      .from<AccountBalanceRow>('AccountBalance')
+      .from('AccountBalance')
       .select('*')
       .eq('AccountCode', ACCOUNT_CODE)
       .order('Date', { ascending: false })
@@ -71,7 +82,8 @@ class PortfolioDataService {
       throw new Error(`Failed to fetch portfolio data: ${error.message}`);
     }
 
-    const [latest, previous] = data ?? [];
+    const rows = (data ?? []) as AccountBalanceRow[];
+    const [latest, previous] = rows;
 
     if (!latest) {
       throw new Error('No account balance data found for the specified account.');
@@ -158,7 +170,7 @@ class PortfolioDataService {
     fromDate.setDate(fromDate.getDate() - days);
 
     const { data, error } = await supabase
-      .from<AccountBalanceRow>('AccountBalance')
+      .from('AccountBalance')
       .select('Date, "Account Equity"')
       .eq('AccountCode', ACCOUNT_CODE)
       .gte('Date', formatDateForQuery(fromDate))
@@ -168,7 +180,9 @@ class PortfolioDataService {
       throw new Error(`Failed to fetch chart data: ${error.message}`);
     }
 
-    return (data ?? []).map((row) => ({
+    const rows = (data ?? []) as AccountBalanceRow[];
+
+    return rows.map((row) => ({
       timestamp: new Date(row.Date).getTime(),
       price: toNumber(row['Account Equity']),
     }));
@@ -186,18 +200,20 @@ class PortfolioDataService {
 
   async getRecentTrades(limit = 10): Promise<Trade[]> {
     const { data, error } = await supabase
-      .from<TradeRow>('TradeData')
+      .from('TradeData')
       .select('TradeID, Symbol, TradeType, StockTradePrice, StockShareQty, Date, TradeTimeStamp')
       .eq('AccountCode', ACCOUNT_CODE)
       .order('Date', { ascending: false })
-      .order('TradeTimeStamp', { ascending: false, nullsLast: true })
+      .order('TradeTimeStamp', { ascending: false, nullsFirst: false })
       .limit(limit);
 
     if (error) {
       throw new Error(`Failed to fetch recent trades: ${error.message}`);
     }
 
-    return (data ?? []).map((trade) => {
+    const rows = (data ?? []) as TradeRow[];
+
+    return rows.map((trade) => {
       const qty = Math.abs(toNumber(trade.StockShareQty));
       const price = toNumber(trade.StockTradePrice);
       const side = (trade.TradeType ?? '').toUpperCase().startsWith('S') ? 'sell' : 'buy';
@@ -215,9 +231,44 @@ class PortfolioDataService {
     });
   }
 
+  async getTradeHistory(): Promise<TradeActivity[]> {
+    const { data, error } = await supabase
+      .from('TradeData')
+      .select('TradeID, Symbol, TradeType, StockShareQty, StockTradePrice, Date, TradeTimeStamp, GrossAmount, Commission, NetAmount')
+      .eq('AccountCode', ACCOUNT_CODE)
+      .order('Date', { ascending: false })
+      .order('TradeTimeStamp', { ascending: false, nullsFirst: false });
+
+    if (error) {
+      throw new Error(`Failed to fetch trade history: ${error.message}`);
+    }
+
+    const rows = (data ?? []) as TradeRow[];
+
+    return rows.map((trade) => {
+      const side = (trade.TradeType ?? '').toUpperCase().startsWith('S') ? 'sell' : 'buy';
+      const timestamp = buildTimestamp(trade.Date, trade.TradeTimeStamp);
+      const shareQty = toNullableNumber(trade.StockShareQty);
+
+      return {
+        id: trade.TradeID !== null ? String(trade.TradeID) : `${trade.Symbol ?? 'UNKNOWN'}-${timestamp.getTime()}`,
+        symbol: (trade.Symbol ?? 'UNKNOWN').trim(),
+        side,
+        shares: shareQty !== null ? Math.abs(shareQty) : null,
+        price: toNullableNumber(trade.StockTradePrice),
+        grossAmount: toNullableNumber(trade.GrossAmount ?? null),
+        commission: toNullableNumber(trade.Commission ?? null),
+        netAmount: toNullableNumber(trade.NetAmount ?? null),
+        timestamp,
+        date: trade.Date ?? null,
+        time: trade.TradeTimeStamp ?? null,
+      };
+    });
+  }
+
   private async computePositions(): Promise<PositionComputation[]> {
     const { data, error } = await supabase
-      .from<TradeRow>('TradeData')
+      .from('TradeData')
       .select('Symbol, TradeType, StockTradePrice, StockShareQty, Date, TradeTimeStamp')
       .eq('AccountCode', ACCOUNT_CODE)
       .not('Symbol', 'is', null)
@@ -228,6 +279,8 @@ class PortfolioDataService {
       throw new Error(`Failed to fetch positions: ${error.message}`);
     }
 
+    const rows = (data ?? []) as TradeRow[];
+
     const positions = new Map<string, {
       shares: number;
       costBasis: number;
@@ -237,7 +290,7 @@ class PortfolioDataService {
       totalVolume: number;
     }>();
 
-    (data ?? []).forEach((trade) => {
+    rows.forEach((trade) => {
       const symbol = trade.Symbol?.trim();
       if (!symbol) {
         return;

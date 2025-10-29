@@ -45,6 +45,20 @@ export interface Trade {
   status: 'executed' | 'pending' | 'cancelled';
 }
 
+export interface TradeActivity {
+  id: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  shares: number | null;
+  price: number | null;
+  grossAmount: number | null;
+  commission: number | null;
+  netAmount: number | null;
+  timestamp?: Date | string | null;
+  date?: string | null;
+  time?: string | null;
+}
+
 export interface Watchlist {
   id: string;
   name: string;

@@ -8,6 +8,9 @@ import './App.css';
 function App() {
   const [activeTab, setActiveTab] = useState<'portfolio' | 'stocks'>('portfolio');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const accountName = 'Aida Guru';
+  const accountCode = 'C40421';
+  const accountType = 'Margin';
 
   return (
     <div className="app">
@@ -54,6 +57,17 @@ function App() {
             <button className="icon-btn">
               <User size={20} />
             </button>
+          </div>
+          
+          <div className="header-mobile-summary">
+            <div className="summary-title">
+              <span className="summary-label">Account</span>
+              <span className="summary-value">{accountName}</span>
+            </div>
+            <div className="summary-chip">
+              <span>{accountCode}</span>
+              <span>{accountType}</span>
+            </div>
           </div>
         </div>
       </header>

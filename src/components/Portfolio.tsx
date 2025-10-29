@@ -7,7 +7,7 @@ import alpacaApi from '../services/alpacaApi';
 const Portfolio: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioType | null>(null);
   const [chartData, setChartData] = useState<ChartData[]>([]);
-  const [period, setPeriod] = useState<'1D' | '1W' | '1M' | '3M' | '1Y'>('1M');
+  const [period, setPeriod] = useState<'1D' | '1W' | '1M' | '3M' | '1Y'>('3M');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

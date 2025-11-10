@@ -139,7 +139,7 @@ const Portfolio: React.FC = () => {
                 </div>
                 <div className="position-details">
                   <span className="position-shares">{position.shares} shares</span>
-                  <span className="position-avg-cost">Avg ${position.avgCost.toFixed(2)}</span>
+                  {/* <span className="position-avg-cost">Avg ${position.avgCost.toFixed(2)}</span> */}
                 </div>
               </div>
             );

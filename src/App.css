@@ -616,29 +616,32 @@ body {
 }
 
 .voice-header {
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .voice-header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .connection-status {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .status-icon {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .status-icon.connected {
@@ -649,22 +652,26 @@ body {
   color: var(--text-muted);
 }
 
+.voice-minimize,
 .voice-close {
   background: none;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s;
+  opacity: 0.7;
 }
 
+.voice-minimize:hover,
 .voice-close:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+  opacity: 1;
 }
 
 .voice-header h3 {
@@ -674,7 +681,8 @@ body {
 
 .voice-status {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .conversation-container {

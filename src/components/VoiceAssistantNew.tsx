@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Mic, Volume2, Phone, X, Wifi, WifiOff } from 'lucide-react';
+import { Mic, Volume2, Phone, X, Wifi, WifiOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useConversation } from '@elevenlabs/react';
 
 const VoiceAssistantNew: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conversationHistory, setConversationHistory] = useState<Array<{
     type: 'user' | 'assistant';
@@ -107,6 +108,7 @@ const VoiceAssistantNew: React.FC = () => {
   const closeAll = useCallback(() => {
     setIsOpen(false);
     setIsExpanded(false);
+    setIsMinimized(false);
     if (conversation.status === 'connected') {
       stopConversation();
     }
@@ -162,24 +164,32 @@ const VoiceAssistantNew: React.FC = () => {
             transition={{ type: 'spring', damping: 20 }}
           >
             <div className="voice-header">
-              <h3>AI Financial Assistant</h3>
+              <div className="connection-status">
+                {conversation.status === 'connected' ? (
+                  <Wifi size={16} className="status-icon connected" />
+                ) : (
+                  <WifiOff size={16} className="status-icon disconnected" />
+                )}
+                <span className="voice-status">
+                  {getStatusText()}
+                </span>
+              </div>
               <div className="voice-header-actions">
-                <div className="connection-status">
-                  {conversation.status === 'connected' ? (
-                    <Wifi size={16} className="status-icon connected" />
-                  ) : (
-                    <WifiOff size={16} className="status-icon disconnected" />
-                  )}
-                  <span className="voice-status">
-                    {getStatusText()}
-                  </span>
-                </div>
-                <button className="voice-close" onClick={closeAll}>
-                  <X size={20} />
+                <button 
+                  className="voice-minimize" 
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  title={isMinimized ? 'Expand' : 'Minimize'}
+                >
+                  {isMinimized ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+                <button className="voice-close" onClick={closeAll} title="Close">
+                  <X size={18} />
                 </button>
               </div>
             </div>
 
+            {!isMinimized && (
+              <>
             <div className="conversation-container">
               {conversationHistory.map((entry, index) => (
                 <div key={index} className={`message ${entry.type}`}>
@@ -249,6 +259,8 @@ const VoiceAssistantNew: React.FC = () => {
                 <li>"Give me a summary of my investments"</li>
               </ul>
             </div>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

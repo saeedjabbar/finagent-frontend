@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Mic, Volume2, Phone, X, Wifi, WifiOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useConversation } from '@elevenlabs/react';
@@ -8,6 +8,7 @@ const VoiceAssistantNew: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const conversationContainerRef = useRef<HTMLDivElement>(null);
   const [conversationHistory, setConversationHistory] = useState<Array<{
     type: 'user' | 'assistant';
     text: string;
@@ -64,6 +65,27 @@ const VoiceAssistantNew: React.FC = () => {
       }
     };
   }, []);
+
+  // Auto-scroll to bottom when conversation history changes
+  useEffect(() => {
+    if (conversationContainerRef.current && !isMinimized) {
+      const container = conversationContainerRef.current;
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 100);
+    }
+  }, [conversationHistory, isMinimized]);
+
+  // Scroll to bottom when widget is opened or expanded
+  useEffect(() => {
+    if (isOpen && isExpanded && !isMinimized && conversationContainerRef.current) {
+      const container = conversationContainerRef.current;
+      setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 100);
+    }
+  }, [isOpen, isExpanded, isMinimized]);
 
   const startConversation = useCallback(async () => {
     try {
@@ -190,7 +212,7 @@ const VoiceAssistantNew: React.FC = () => {
 
             {!isMinimized && (
               <>
-            <div className="conversation-container">
+            <div className="conversation-container" ref={conversationContainerRef}>
               {conversationHistory.map((entry, index) => (
                 <div key={index} className={`message ${entry.type}`}>
                   <div className="message-content">
